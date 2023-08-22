@@ -204,7 +204,8 @@ There are 47 Base Integer Instructions present in RISC-V ISA
    - These instructions are used for unconditional jumps and function calls.
    - Examples: JAL
 
-<img width="1000" height="420" alt="image" src="https://github.com/yagnavivek/PES_ASIC_CLASS/assets/93475824/e69043fb-684e-42eb-9e21-fd51943c1ec1">
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/b61b4696-b0a3-496c-bc99-d71d53983db4)
+
 
 **[number]** represents number of bits occupied by that field
 
@@ -233,7 +234,7 @@ The access is done using Sysytem calls with the help of ABI
 ### ABI Names : 
 - ABI names for registers serve as a standardized way to designate the purpose and usage of specific registers within a software ecosystem. These names play a critical role in maintaining compatibility, optimizing code generation, and facilitating communication between different software components.
 
-<img width="1000" height="600" src="https://github.com/yagnavivek/PES_ASIC_CLASS/assets/93475824/27d13974-1b70-4207-a2fb-05b232027323">
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/140e423e-8d0b-46ac-8dc6-7e745f639ca0)
 
 #### Data can be stored in register by 2 methods
 1. Directly store in registers
@@ -245,29 +246,13 @@ To store 64 bits of data from mem to reg, we use 8*8bit stores ie., m[0],m[1]...
 
 ## Simulate a C program using ABI function call (using registers) and execute 
 
-The required program files are under day 2 folder
-
-<img width="1150" height="150" src="https://github.com/yagnavivek/PES_ASIC_CLASS/assets/93475824/45c24570-4f59-4ddc-8a15-741bdd2d18c2">
-
-![alp_onetonextern](https://github.com/yagnavivek/PES_ASIC_CLASS/assets/93475824/c6e76147-0b45-4699-8f09-ea20e0364a47)
-
-Here we can observe that at 5th line, inorder to comute the result ,its going to the "load"  function
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/388ff63e-1df5-434d-96e3-824d7c93d10a)
 
 ### Further we will see how to run a C program on on RISC-V CPU
 
-- Input : C Program loaded into memory to RISC-V CPU in Hex format
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/b3ca5e8f-1efc-4203-a09b-36db5be4c5cc)
 
-CPU processes the contents of the memory and provides with output using iverilog 
-
-- Risc-V CPU : ```Picorv32.v```
-- Testbench for verification : ```testbench.v```
-- Tool : ```iverilog```
-- script : ```rv32im.sh``` : has the commands to get the c-program, ALP, converts into hex format, loads into memory of riscv cpu, passes it iverilog and provides the output
-
-![Screenshot from 2023-08-21 22-22-08](https://github.com/yagnavivek/PES_ASIC_CLASS/assets/93475824/e2f64a4f-e83a-4c2c-a273-124f56b4da8b)
-
-
-[Back to COURSE](https://github.com/yagnavivek/PES_ASIC_CLASS/tree/main#course)
+[Back to COURSE](https://github.com/Vinodkumar8318/pes_asic_class/tree/main#course)
 </details>
 
 <details>
