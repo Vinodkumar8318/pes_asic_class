@@ -93,7 +93,7 @@ ____System Software____
 - **B (Bit Manipulation)** : The B set introduces instructions for bit manipulation operations, allowing efficient manipulation of individual bits in registers and memory.
   - ANDI, ORI, XORI, SLLI, SRLI, SRAI
 
-## 1. Create a simple C program That calculates sum from 1 to N -> sum_1_to_N.c
+## 1. Create a simple C program That calculates sum from 1 to N -> sum1ton.c
 
 _____Compile it using C compiler_____
 ```
