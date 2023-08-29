@@ -253,10 +253,10 @@ To store 64 bits of data from mem to reg, we use 8*8bit stores ie., m[0],m[1]...
 ![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/b3ca5e8f-1efc-4203-a09b-36db5be4c5cc)
 
 [Back to COURSE](https://github.com/Vinodkumar8318/pes_asic_class/tree/main#course)
-</details>
 
+</details>
 <details>
-<summary>DAY 3 </summary>
+<summary>DAY 3 : Introduction to verilog RTL and Design Synthsis </summary>
 <br>
 
 # Introduction to open-source simulator iverilog
