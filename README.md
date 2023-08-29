@@ -384,27 +384,33 @@ Steps to realize good_mux(design) in terms of standard cells avilable in library
 
 
   1. Read library: `read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib`
+     
      ![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/da09cd7f-36a1-42a9-9792-7e76cd664463)
 
-
   3. Read design: `read_verilog good_mux.v`
+  
      ![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/c2db93cc-f39e-41c6-8236-163cec43e13b)
 
 
   5. Synthesis: `synth -top good_mux`
+     
      ![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/ec8f4e23-e2b2-4c3c-bacd-8c706f0f5a5c)
 
 
   7. Generate netlist: `abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib`
+     
      ![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/55483ac8-ae5f-4584-a247-fca1b6b9835b)
 
 
   9. Logic realized: `show`
+      
       ![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/f12f77b7-72e3-461a-a163-2fe70a165f7a)
 
 
-  10. Write netlist: `write_verilog -noattr good_mux_netlist.v`, `!gvim good_mux_netlist.v`
+  11. Write netlist: `write_verilog -noattr good_mux_netlist.v`, `!gvim good_mux_netlist.v`
+      
       ![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/e8f05a55-7a9a-4564-a08d-bcf0154a56ae)
+
 
 ### good_mux_netlist.v
 ``` v
