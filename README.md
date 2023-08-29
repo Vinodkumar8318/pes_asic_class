@@ -441,6 +441,14 @@ module good_mux(i0, i1, sel, y);
   assign y = _3_;
 endmodule
 ```
+
+[Back to COURSE](https://github.com/Vinodkumar8318/Ppes_asic_class/tree/main#course)
+
+</details>
+<details>
+<summary>DAY 4 : Timing Libs, Hirearchical vs Flat Synthsis and Efficient Flop Coding Styles </summary>
+<br>
+
 # Introduction to timing dot libs
 ### sky130_fd_sc_hd__tt_025C_1v80.lib
 
