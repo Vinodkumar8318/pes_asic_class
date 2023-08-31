@@ -848,4 +848,338 @@ endmodule
 <details>
 <summary>DAY 5 : Combinational and sequential Optimizations </summary>
 <br>
+	
+# Introduction to optimizations
+1. **CCombinational optimization**
+    - Combinational optimization is a branch of mathematical optimization that focuses on selecting the best combination of discrete options to optimize a given function. 
+    - Two methods within computational optimization are:
+       + **Constant Propagation:** This technique identifies and replaces variables or expressions with their constant values, reducing redundancy in code and improving performance.
+       + **Boolean Optimization:** This method simplifies boolean expressions or logic circuits by reducing the number of logical gates or terms while preserving the same logical behavior, which is useful in digital circuit design and logical reasoning.
+
+2. **Sequential logic optimization**
+    - Sequential logic optimization is the process of enhancing the performance and efficiency of digital circuits containing flip-flops and state elements.
+    - Methods under this optimization umbrella include:
+       + **Sequential Constant Propagation:** Identifies and propagates constant values through flip-flops to reduce redundant state transitions.
+       + **State Optimization:** Reduces the number of states in finite state machines (FSMs) by merging equivalent states, simplifying the circuit.
+       + **Sequential Logic Cloning:** Replicates portions of sequential logic to alleviate bottlenecks and improve circuit throughput.
+       + **Retiming:** Adjusts the placement of flip-flops within a circuit to optimize timing, balance critical paths, and enhance overall performance.
+
+# Combinational logic optimizations
+**opt_check.v**
+``` v
+module opt_check (input a , input b , output y);
+	assign y = a?b:0;
+endmodule
+```
+**Synthesis**
+```
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+read_verilog opt_check.v
+synth -top opt_check
+opt_clean -purge
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+```
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/312e8cba-af4c-47f3-9fa8-97a567b2b0bd)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/4ae736ef-87e9-4c0c-a1d3-ecd74d550f34)
+
+
+**opt_check2.v**
+``` v
+module opt_check2 (input a , input b , output y);
+	assign y = a?1:b;
+endmodule
+```
+**Synthesis**
+```
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+read_verilog opt_check2.v
+synth -top opt_check2
+opt_clean -purge
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/a1589c26-5120-4d92-86c3-b8501913b323)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/db473fc2-9cd8-4446-81df-7bc470307190)
+
+
+**opt_check3.v**
+``` v
+module opt_check3 (input a , input b, input c , output y);
+	assign y = a?(c?b:0):0;
+endmodule
+```
+**Synthesis**
+```
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+read_verilog opt_check3.v
+synth -top opt_check3
+opt_clean -purge
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/1977da41-8f5a-4727-aff4-629d2efd55c8)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/28522f20-3950-4db2-ae5c-b4b73f374d93)
+
+
+**multiple_module_opt.v**
+``` v
+module sub_module1(input a , input b , output y);
+ assign y = a & b;
+endmodule
+
+
+module sub_module2(input a , input b , output y);
+ assign y = a^b;
+endmodule
+
+
+module multiple_module_opt(input a , input b , input c , input d , output y);
+wire n1,n2,n3;
+
+sub_module1 U1 (.a(a) , .b(1'b1) , .y(n1));
+sub_module2 U2 (.a(n1), .b(1'b0) , .y(n2));
+sub_module2 U3 (.a(b), .b(d) , .y(n3));
+
+assign y = c | (b & n1); 
+
+
+endmodule
+```
+**Synthesis**
+```
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+read_verilog multiple_module_opt.v
+
+synth -top multiple_module_opt
+flatten
+opt_clean -purge
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/d4977886-10bf-4bd4-87cb-47f76d6dcb61)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/f66c3166-a21d-4372-b9ca-00145ecf414d)
+
+
+# Sequential logic optimizations
+**dff_const1.v**
+``` v
+module dff_const1(input clk, input reset, output reg q);
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+		q <= 1'b0;
+	else
+		q <= 1'b1;
+end
+
+endmodule
+```
+**Simulate**
+```
+iverilog dff_const1.v tb_dff_const1.v
+./a.out
+gtkwave tb_dff_const1.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/f3e25841-4def-4e25-8d3d-100b65359406)
+
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/7b52ec94-a7ff-4031-b649-050b4e5f5e1b)
+
+
+**Synthesis**
+```
+  read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+  read_verilog dff_const1.v
+  synth -top dff_const1
+  dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib 
+  abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+  show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/b63d621e-9f7e-4027-afd4-36c1288732ec)
+
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/a86fd1ac-0e9d-4e7b-8a86-89af55b337c2)
+
+
+**dff_const2.v**
+``` v
+module dff_const2(input clk, input reset, output reg q);
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+		q <= 1'b1;
+	else
+		q <= 1'b1;
+end
+
+endmodule
+```
+**Simulate**
+```
+iverilog dff_const1.v tb_dff_const2.v
+./a.out
+gtkwave tb_dff_const2.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/cd075a4e-52c2-4751-ac7e-595fa0b4ec7a)
+
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/8c695554-3793-4019-a06e-fccadd07b749)
+
+
+**Synthesis**
+```
+  read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+  read_verilog dff_const2.v
+  synth -top dff_const2
+  dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib 
+  abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+  show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/ad255d91-9cd5-4a09-991e-ea2aa6cb7331)
+
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/9180b110-d3b5-46f1-9c3a-5bc865c1d5bd)
+
+
+
+**dff_const3.v**
+``` v
+module dff_const3(input clk, input reset, output reg q);
+reg q1;
+
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+	begin
+		q <= 1'b1;
+		q1 <= 1'b0;
+	end
+	else
+	begin
+		q1 <= 1'b1;
+		q <= q1;
+	end
+end
+
+endmodule
+```
+
+**Simulate**
+```
+iverilog dff_const3.v tb_dff_const2.v
+./a.out
+gtkwave tb_dff_const3.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/d271d98d-13b4-4a97-aa41-b6e8826c189f)
+
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/2ad2484b-102a-48dc-adbf-f2eef48c530a)
+
+
+**Synthesis**
+```
+  read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+  read_verilog dff_const3.v
+  synth -top dff_const3
+  dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib 
+  abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+  show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/544b92bf-5ad0-4d86-a246-f72b58b675f0)
+
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/3cc2d7da-a0f5-4a02-827b-b2c16d2d891f)
+
+
+
+# Sequential optimzations for unused outputs
+**counter_opt.v**
+``` v
+module counter_opt (input clk , input reset , output q);
+reg [2:0] count;
+assign q = count[0];
+
+always @(posedge clk ,posedge reset)
+begin
+	if(reset)
+		count <= 3'b000;
+	else
+		count <= count + 1;
+end
+
+endmodule
+```
+**Synthesis**
+```
+  read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+  read_verilog counter_opt.v
+  synth -top counter_opt
+  dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib 
+  abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+  show
+```
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/990f6547-62d2-4f9c-9981-bec0a848c92c)
+
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/68710b8a-8804-43dd-be6d-9c5987450e4b)
+
+
+
+**counter_opt2.v**
+``` v
+module counter_opt (input clk , input reset , output q);
+reg [2:0] count;
+assign q = (count[2:0] == 3'b100);
+
+always @(posedge clk ,posedge reset)
+begin
+	if(reset)
+		count <= 3'b000;
+	else
+		count <= count + 1;
+end
+
+endmodule
+```
+**Synthesis**
+```
+  read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib  
+  read_verilog counter_opt2.v
+  synth -top counter_opt
+  dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib 
+  abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+  show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/f26f248b-7235-440b-9da3-a6e7915b23a4)
+
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/be559ba2-b100-4563-a091-c0120552da14)
+
+
+[Back to COURSE](https://github.com/Vinodkumar8318/Ppes_asic_class/tree/main#course)
+
+</details>
+<details>
+<summary>DAY 6 : GLS, Blocking vs Non blocking and synthsis - Simulation Mismatch </summary>
+<br>
+
 
