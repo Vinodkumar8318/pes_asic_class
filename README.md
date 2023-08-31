@@ -1182,4 +1182,220 @@ endmodule
 <summary>DAY 6 : GLS, Blocking vs Non blocking and synthsis - Simulation Mismatch </summary>
 <br>
 
+# GLS Synthesis-Simulation mismatch and Blocking Non-blocking statements
+## GLS Concepts And Flow Using Iverilog
+### Gate level simulation
++ Gate-level simulation is a method used in electronics design to test and verify digital circuits at the level of individual logic gates and flip-flops.
++ It's crucial for checking functionality, timing, power consumption, and generating test patterns for integrated circuits.
++ It operates at a lower abstraction level than higher-level simulations and is essential for debugging and ensuring circuit correctness.
 
+### To perform gate-level simulation using Icarus Verilog (iverilog):
+
+1. Write RTL code.
+2. Synthesize to generate gate-level netlist.
+3. Create a testbench in Verilog.
+4. Compile both netlist and testbench.
+5. Run simulation with compiled files.Debug and iterate as needed.
+6. Perform timing analysis if necessary.
+7. Generate test vectors for manufacturing tests.
+
+## Synthesis-Simulation mismatch
++ Synthesis-simulation mismatch is when there are differences between how a digital circuit behaves in simulation at the RTL level and how it behaves after gate-level synthesis.
++ This can occur due to optimization, clock domain issues, library differences, or other factors.
++ To address it, ensure consistent tool versions, check synthesis settings, debug with simulation tools, and follow best practices in RTL coding and design.
++ Resolving these mismatches is crucial for reliable hardware implementation.
+
+## Blocking And Non-Blocking Statements
+**Blocking Statements**
++ Blocking statements execute sequentially in the order they appear within a procedural block or always block.
++ When a blocking assignment or operation is encountered, the simulation halts and waits for it to complete before moving on to the next statement.
++ Blocking assignments are typically used to describe combinational logic, where the order of execution doesn't matter, and each assignment depends on the previous one.
+
+**Example (Blocking Assignment):** `a = b + c; // b and c must be known before calculating 'a'`
+
+**Non-Blocking Statements**
++ Non-blocking statements allow concurrent execution within a procedural block or always block, making them suitable for describing synchronous digital circuits.
++ When a non-blocking assignment or operation is encountered, the simulation does not wait for it to complete. Instead, it schedules the assignments to occur in parallel.
++ Non-blocking assignments are typically used to model sequential logic, like flip-flops and registers, where parallel execution is required.
+
+**Example (Non-Blocking Assignment):** 
+```
+always @(posedge clk)
+  begin
+    b <= a; // Concurrently scheduled assignment
+    c <= b; // Concurrently scheduled assignment
+  end
+```
+## Caveats With Blocking Statements
+**Caveats with blocking statements in hardware description languages like Verilog include:**
++ **Sequential Execution:** Blocking statements execute sequentially, which may not accurately represent concurrent hardware behavior in the design.
+
++ **Order Dependency:** The order of blocking statements can affect simulation results, leading to race conditions or unintended behavior.
+
++ **Combinational Logic Only:** Blocking statements are primarily used for modeling combinational logic, making them less suitable for sequential or synchronous logic.
+
++ **Limited for Testbenches:** In testbench code, excessive use of blocking statements can lead to simulation race conditions that don't reflect real-world hardware behavior.
+
++ **Initialization Issues:** In some cases, initializing variables with blocking assignments can lead to unexpected results due to order-dependent initialization.
+
+To mitigate these issues, designers often use non-blocking statements for modeling sequential logic and adopt good coding practices to minimize order dependencies and improve code clarity.
+
+
+# Labs on GLS and Synthesis-Simulation Mismatch
+
+
+**ternary_operator_mux.v**
+``` v
+module ternary_operator_mux (input i0 , input i1 , input sel , output y);
+	assign y = sel?i1:i0;
+endmodule
+```
+**RTL Simulation**
+```
+iverilog ternary_operator_mux.v tb_ternary_operator_mux.v
+./a.out
+gtkwave tb_ternary_operator_mux.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/26244993-c4d7-412a-9ecd-8fff2b05b6b4)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/bcfc1cff-8cd4-4b4f-b005-f32c85f5eb8b)
+
+
+**Synthesis**
+```
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog ternary_operator_mux.v
+synth -top ternary_operator_mux
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+write_verilog -noattr ternary_operator_mux_netlist.v
+show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/1c75a33d-7f11-4ae0-a3cd-93900beb5cd3)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/31614d96-b38d-4c3e-8cd7-634715c91792)
+
+
+
+**GLS**
+To to Gate level simulation, Invoke iverilog with verilog modules
+```
+iverilog ../my_lib/verilog_model/primitives.v ../my_lib/verilog_model/sky130_fd_sc_hd.v ternary_operator_mux_netlist.v tb_ternary_operator_mux.v
+./a.out
+gtkwave tb_ternary_operator_mux.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/3b94fd63-1440-42f9-a49b-f02208349ea3)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/a4efbdd2-eadb-49af-a121-c5e92d421234)
+
+
+
+**bad_mux.v**
+``` v
+module bad_mux (input i0 , input i1 , input sel , output reg y);
+always @ (sel)
+begin
+	if(sel)
+		y <= i1;
+	else 
+		y <= i0;
+end
+endmodule
+```
+**RTL Simulation**
+```
+iverilog bad_mux.v tb_bad_mux.v
+./a.out
+gtkwave tb_bad_mux.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/2a277f02-f82e-4e17-8567-2ca3a82cbfa9)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/652704cd-47e4-4037-a2e5-260ec79b7a7d)
+
+
+**Synthesis**
+```
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog bad_mux.v
+synth -top bad_mux
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+write_verilog -noattr bad_mux_netlist.v
+show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/63cfa473-8ce7-4650-9a9f-14b13641a847)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/e4dbcfcb-de35-4441-8dfc-66e02c0c8056)
+
+
+**GLS**
+To to Gate level simulation, Invoke iverilog with verilog modules
+```
+iverilog ../my_lib/verilog_model/primitives.v ../my_lib/verilog_model/sky130_fd_sc_hd.v bad_mux_netlist.v tb_bad_mux.v
+./a.out
+gtkwave tb_bad_mux.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/1bea6a4d-0b51-4374-b6b5-5eb66537a50a)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/fc348231-d5b4-43f8-8b10-a3f8ecef9aed)
+
+
+
+
+# Labs on synth-sim mismatch for blocking statement
+**blocking_caveat.v**
+``` v
+module blocking_caveat (input a , input b , input  c, output reg d); 
+reg x;
+always @ (*)
+begin
+	d = x & c;
+	x = a | b;
+end
+endmodule
+```
+**RTL Simulation**
+```
+iverilog blocking_caveat.v tb_blocking_caveat.v
+./a.out
+gtkwave tb_blocking_caveat.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/9c703629-c6e3-4f31-941a-dcc30981bec3)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/565826fe-9abc-4c61-8aeb-9e0d7b920549)
+
+
+**Synrhesis**
+```
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog blocking_caveat.v
+synth -top blocking_caveat
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+write_verilog -noattr blocking_caveat_netlist.v
+show
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/d60080e7-5467-4e82-9097-f4b1a49fa6a8)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/d10c1f53-9138-4678-a0e9-672f87023c25)
+
+
+**GLS**
+To to Gate level simulation, Invoke iverilog with verilog modules
+```
+iverilog ../my_lib/verilog_model/primitives.v ../my_lib/verilog_model/sky130_fd_sc_hd.v blocking_caveat_netlist.v tb_blocking_caveat.v
+./a.out
+gtkwave tb_blocking_caveat.vcd
+```
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/e2b7f9e2-0dbc-4e44-9529-33dfd8ce64c4)
+
+
+![image](https://github.com/Vinodkumar8318/pes_asic_class/assets/142583979/9efe2896-c476-490e-8c9e-e0c8bd464e18)
+
+
+[Back to COURSE](https://github.com/Vinodkumar8318/Ppes_asic_class/tree/main#course)
